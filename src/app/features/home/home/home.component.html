@@ -1,1 +1,45 @@
-<p>Home</p>
+<section class="dashboard-content">
+  <div class="welcome">
+    <h1>Buenas noches, {{ authService.profile()?.name || 'usuario' }}</h1>
+    <p>{{ date }} · Dale play a tu momento</p>
+  </div>
+  <div class="filters">
+    <button class="active" type="button">Para ti</button>
+    <button type="button">Novedades</button>
+    <button type="button">Podcasts</button>
+  </div>
+  <article class="hero-banner">
+    <div class="hero-copy">
+      <span>TU MIX DIARIO</span>
+      <h2>La noche es tuya.</h2>
+      <p>Electrónica, indie y un poco de magia</p>
+      <button type="button">Escuchar mix <b>▶</b></button>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="vinyl"></div>
+      <div class="moon"></div>
+    </div>
+  </article>
+
+  <section class="music-section">
+    <div class="section-heading"><h2>Hecho para tus oídos</h2><button type="button">Ver todo</button></div>
+    <div class="music-grid">
+      <article class="music-card" *ngFor="let album of albums">
+        <div class="album-cover" [style.background]="album.color"><span>♫</span></div>
+        <h3>{{ album.title }}</h3>
+        <p>{{ album.artist }}</p>
+        <small>{{ album.genre }}</small>
+      </article>
+    </div>
+  </section>
+
+  <section class="music-section">
+    <div class="section-heading"><h2>Encuentra tu frecuencia</h2><button type="button">Ver todo</button></div>
+    <div class="genre-grid">
+      <button class="genre-card" type="button" *ngFor="let genre of genres" [style.--genre-color]="genre.color">
+        <span>{{ genre.name }}</span>
+        <b>♫</b>
+      </button>
+    </div>
+  </section>
+</section>

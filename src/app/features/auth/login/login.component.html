@@ -1,1 +1,33 @@
-<p>Login</p>
+<main class="auth-page">
+  <section class="auth-card">
+    <div class="brand"><span class="brand-mark">A</span><span>AppMusic</span></div>
+    <h1>Vuelve a tu ritmo.</h1>
+    <p class="auth-subtitle">Tu música y tu gente te estaban esperando.</p>
+
+    <button class="google-button" type="button" (click)="loginWithGoogle()" [disabled]="busy">
+      <span class="google-g">G</span> Continuar con Google
+    </button>
+    <div class="divider"><span>o con tu correo</span></div>
+
+    <form (ngSubmit)="login()" novalidate>
+      <label>Correo electrónico
+        <input type="email" [(ngModel)]="email" name="email" autocomplete="email" placeholder="nombre@correo.com">
+      </label>
+      <label>Contraseña
+        <span class="password-field">
+          <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" name="password" autocomplete="current-password" placeholder="Tu contraseña">
+          <button type="button" (click)="showPassword = !showPassword">{{ showPassword ? 'Ocultar' : 'Mostrar' }}</button>
+        </span>
+      </label>
+      <div class="auth-options">
+        <label class="check"><input type="checkbox" [(ngModel)]="remember" name="remember"> Recuérdame</label>
+        <button class="text-button" type="button" (click)="resetPassword()">¿Olvidaste tu contraseña?</button>
+      </div>
+      <p class="form-message error" *ngIf="error">{{ error }}</p>
+      <p class="form-message success" *ngIf="success">{{ success }}</p>
+      <button class="primary-button" type="submit" [disabled]="busy">{{ busy ? 'Ingresando...' : 'Iniciar sesión' }}</button>
+    </form>
+    <p class="auth-switch">¿Aún no tienes cuenta? <a routerLink="/register">Regístrate</a></p>
+  </section>
+  <p class="secure-note">Conexión segura · Tus datos siempre son tuyos</p>
+</main>

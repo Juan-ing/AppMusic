@@ -1,3 +1,46 @@
-<router-outlet></router-outlet>
-<app-mini-player></app-mini-player>
-<app-bottom-nav></app-bottom-nav>
+<div class="dashboard-shell">
+  <aside class="sidebar" [class.open]="menuOpen">
+    <a class="brand dashboard-brand" routerLink="/dashboard/home"><span class="brand-mark">A</span><span>AppMusic</span></a>
+    <nav class="main-nav">
+      <a routerLink="/dashboard/home" routerLinkActive="active"><span>⌂</span> Inicio</a>
+      <a routerLink="/dashboard/search" routerLinkActive="active"><span>⌕</span> Explorar</a>
+      <a routerLink="/dashboard/library" routerLinkActive="active"><span>▤</span> Tu biblioteca</a>
+      <a href="#"><span>♫</span> Playlists</a>
+      <a href="#"><span>◆</span> Tienda</a>
+      <a href="#"><span>●</span> Giras</a>
+      <a href="#"><span>◉</span> Comunidad</a>
+    </nav>
+    <div class="playlist-section">
+      <div class="playlist-heading"><span>Tus playlists</span><button type="button" title="Crear playlist">+</button></div>
+      <a href="#">After hours</a>
+      <a href="#">Indie en español</a>
+      <a href="#">Focus mode</a>
+    </div>
+    <div class="premium-card">
+      <span class="premium-icon">✦</span>
+      <h3>Tu música, sin límites</h3>
+      <p>Escucha sin anuncios y descarga tus favoritos</p>
+      <button type="button">Descubrir Premium</button>
+    </div>
+  </aside>
+  <button class="sidebar-backdrop" *ngIf="menuOpen" type="button" aria-label="Cerrar menú" (click)="menuOpen = false"></button>
+
+  <main class="dashboard-main">
+    <header class="dashboard-header">
+      <button class="hamburger" type="button" aria-label="Abrir menú" (click)="menuOpen = true">☰</button>
+      <div class="search-box"><span>⌕</span><input type="search" placeholder="Buscar canciones, artistas o podcasts"></div>
+      <div class="profile-wrap">
+        <button class="profile-button" type="button" (click)="userMenuOpen = !userMenuOpen" [attr.aria-expanded]="userMenuOpen">
+          <img *ngIf="authService.profile()?.photoURL" [src]="authService.profile()?.photoURL" alt="">
+          <span *ngIf="!authService.profile()?.photoURL">{{ (authService.profile()?.name || 'U').charAt(0) }}</span>
+        </button>
+        <div class="user-menu" *ngIf="userMenuOpen">
+          <strong>{{ authService.profile()?.name || 'Usuario' }}</strong>
+          <button type="button" (click)="logout()">Cerrar sesión</button>
+        </div>
+      </div>
+    </header>
+    <router-outlet></router-outlet>
+  </main>
+  <app-bottom-nav></app-bottom-nav>
+</div>
