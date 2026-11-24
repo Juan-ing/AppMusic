@@ -3,17 +3,13 @@
     <h1>Buenas noches, {{ authService.profile()?.name || 'usuario' }}</h1>
     <p>{{ date }} · Dale play a tu momento</p>
   </div>
-  <div class="filters">
-    <button class="active" type="button">Para ti</button>
-    <button type="button">Novedades</button>
-    <button type="button">Podcasts</button>
-  </div>
+  <p class="form-message error" *ngIf="error">{{ error }}</p>
   <article class="hero-banner">
     <div class="hero-copy">
       <span>TU MIX DIARIO</span>
       <h2>La noche es tuya.</h2>
       <p>Electrónica, indie y un poco de magia</p>
-      <button type="button">Escuchar mix <b>▶</b></button>
+      <a routerLink="/dashboard/search">Explorar música <b>→</b></a>
     </div>
     <div class="hero-art" aria-hidden="true">
       <div class="vinyl"></div>
@@ -23,23 +19,62 @@
 
   <section class="music-section">
     <div class="section-heading"><h2>Hecho para tus oídos</h2><button type="button">Ver todo</button></div>
-    <div class="music-grid">
-      <article class="music-card" *ngFor="let album of albums">
-        <div class="album-cover" [style.background]="album.color"><span>♫</span></div>
+    <div class="music-grid" *ngIf="albums().length; else noAlbums">
+      <article class="music-card" *ngFor="let album of albums()">
+        <button class="album-cover" type="button" [style.backgroundImage]="album.coverUrl ? 'url(' + album.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'" (click)="playAlbum(album)" [attr.aria-label]="'Reproducir ' + album.title"><span>▶</span></button>
         <h3>{{ album.title }}</h3>
         <p>{{ album.artist }}</p>
         <small>{{ album.genre }}</small>
+        <button class="save-album-button" type="button" (click)="saveAlbum(album)" [attr.aria-label]="'Guardar ' + album.title + ' en la biblioteca'">＋ Guardar álbum</button>
       </article>
     </div>
+    <ng-template #noAlbums><p class="empty-state">Todavía no hay álbumes en el catálogo.</p></ng-template>
+  </section>
+
+  <section class="music-section">
+    <div class="section-heading"><h2>Recomendado por tus Me gusta</h2></div>
+    <div class="song-list" *ngIf="library.favorites().length && recommendations().length; else noLikeRecommendations">
+      <article class="song-row" *ngFor="let song of recommendations()">
+        <button class="song-art" type="button" (click)="playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'" [attr.aria-label]="'Reproducir ' + song.title">▶</button>
+        <div class="song-details"><strong>{{ song.title }}</strong><span>{{ song.artist }} · {{ song.album }}</span></div>
+        <small>{{ song.genre }}</small>
+        <app-playlist-picker [song]="song"></app-playlist-picker>
+        <button class="icon-action" type="button" [class.is-favorite]="isFavorite(song.id)" [attr.aria-pressed]="isFavorite(song.id)" (click)="toggleFavorite(song)" [attr.aria-label]="'Agregar ' + song.title + ' a Me gusta'">♡</button>
+      </article>
+    </div>
+    <ng-template #noLikeRecommendations>
+      <p class="empty-state" *ngIf="!library.favorites().length">Marca canciones con Me gusta y te recomendaremos otras conectadas por el grafo de artistas. <a routerLink="/dashboard/search">Explorar música</a></p>
+      <p class="empty-state" *ngIf="library.favorites().length">Aún no encontramos canciones similares en el catálogo.</p>
+    </ng-template>
   </section>
 
   <section class="music-section">
     <div class="section-heading"><h2>Encuentra tu frecuencia</h2><button type="button">Ver todo</button></div>
-    <div class="genre-grid">
-      <button class="genre-card" type="button" *ngFor="let genre of genres" [style.--genre-color]="genre.color">
-        <span>{{ genre.name }}</span>
+    <div class="genre-grid" *ngIf="genres().length; else noGenres">
+      <button class="genre-card" type="button" *ngFor="let genre of genres(); let index = index" [style.--genre-color]="genreColors[index % genreColors.length]" routerLink="/dashboard/search">
+        <span>{{ genre }}</span>
         <b>♫</b>
       </button>
     </div>
+    <ng-template #noGenres><p class="empty-state">Los géneros aparecerán cuando haya música en el catálogo.</p></ng-template>
+  </section>
+
+  <section class="music-section">
+    <div class="section-heading"><h2>Escuchados recientemente</h2></div>
+    <div class="music-grid" *ngIf="library.recentSongs().length; else noRecent">
+      <article class="music-card" *ngFor="let song of library.recentSongs().slice(0, 4)">
+        <button class="album-cover" type="button" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#312e81,#06b6d4)'" (click)="playSong(song)" [attr.aria-label]="'Reproducir ' + song.title"><span>▶</span></button>
+        <h3>{{ song.title }}</h3><p>{{ song.artist }}</p>
+      </article>
+    </div>
+    <ng-template #noRecent><p class="empty-state">Tus reproducciones recientes aparecerán aquí.</p></ng-template>
+  </section>
+
+  <section class="music-section">
+    <div class="section-heading"><h2>Playlists populares</h2><a routerLink="/dashboard/playlists">Ver tus playlists</a></div>
+    <div class="library-card-grid" *ngIf="featuredPlaylists().length; else noFeaturedPlaylists">
+      <a class="library-card" *ngFor="let playlist of featuredPlaylists()" routerLink="/dashboard/playlists"><span class="library-art">♫</span><strong>{{ playlist.name }}</strong><small>{{ playlist.songIds.length }} canciones</small></a>
+    </div>
+    <ng-template #noFeaturedPlaylists><p class="empty-state">Las playlists destacadas aparecerán aquí.</p></ng-template>
   </section>
 </section>

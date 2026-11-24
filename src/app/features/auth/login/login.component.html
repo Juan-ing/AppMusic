@@ -11,11 +11,11 @@
 
     <form (ngSubmit)="login()" novalidate>
       <label>Correo electrónico
-        <input type="email" [(ngModel)]="email" name="email" autocomplete="email" placeholder="nombre@correo.com">
+        <input type="email" [(ngModel)]="email" name="email" autocomplete="email" placeholder="nombre@correo.com" required>
       </label>
       <label>Contraseña
         <span class="password-field">
-          <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" name="password" autocomplete="current-password" placeholder="Tu contraseña">
+          <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" name="password" autocomplete="current-password" placeholder="Tu contraseña" required>
           <button type="button" (click)="showPassword = !showPassword">{{ showPassword ? 'Ocultar' : 'Mostrar' }}</button>
         </span>
       </label>
@@ -23,8 +23,9 @@
         <label class="check"><input type="checkbox" [(ngModel)]="remember" name="remember"> Recuérdame</label>
         <button class="text-button" type="button" (click)="resetPassword()">¿Olvidaste tu contraseña?</button>
       </div>
-      <p class="form-message error" *ngIf="error">{{ error }}</p>
-      <p class="form-message success" *ngIf="success">{{ success }}</p>
+      <p class="form-message error" *ngIf="authService.profileError()" role="alert">{{ authService.profileError() }}</p>
+      <p class="form-message error" *ngIf="error" role="alert">{{ error }}</p>
+      <p class="form-message success" *ngIf="success" role="status">{{ success }}</p>
       <button class="primary-button" type="submit" [disabled]="busy">{{ busy ? 'Ingresando...' : 'Iniciar sesión' }}</button>
     </form>
     <p class="auth-switch">¿Aún no tienes cuenta? <a routerLink="/register">Regístrate</a></p>

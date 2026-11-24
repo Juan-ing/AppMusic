@@ -1,0 +1,39 @@
+<button
+  class="icon-action"
+  type="button"
+  (click)="open()"
+  [attr.aria-label]="'Agregar ' + song.title + ' a una playlist'"
+  title="Agregar a playlist"
+>＋</button>
+
+<div class="playlist-picker-backdrop" *ngIf="isOpen" (click)="close()">
+  <section class="playlist-picker-dialog" role="dialog" aria-modal="true" [attr.aria-label]="'Agregar ' + song.title + ' a una playlist'" (click)="$event.stopPropagation()">
+    <button class="playlist-picker-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
+    <span class="eyebrow">GUARDA ESTA CANCIÓN</span>
+    <h2>Agregar a playlist</h2>
+    <p class="playlist-picker-song">{{ song.title }} · {{ song.artist }}</p>
+    <p class="form-message error" *ngIf="error" role="alert">{{ error }}</p>
+    <p class="form-message success" *ngIf="feedback" role="status">{{ feedback }}</p>
+    <p class="empty-state" *ngIf="loading">Cargando tus playlists…</p>
+    <div class="playlist-picker-list" *ngIf="!loading && playlists.length">
+      <button *ngFor="let playlist of playlists" type="button" [disabled]="busy" (click)="addToPlaylist(playlist)">
+        <span class="playlist-cover">♫</span>
+        <span><strong>{{ playlist.name }}</strong><small>{{ playlist.songIds.length }} canciones</small></span>
+        <span class="playlist-picker-plus">＋</span>
+      </button>
+    </div>
+    <button
+      class="playlist-picker-create-toggle"
+      *ngIf="!loading && playlists.length && !showCreate"
+      type="button"
+      (click)="showCreate = true"
+    >＋ Crear una playlist nueva</button>
+    <form class="playlist-picker-create" *ngIf="!loading && showCreate" (ngSubmit)="createPlaylist()">
+      <label [attr.for]="'playlist-name-' + song.id">Nombre de la playlist</label>
+      <input [id]="'playlist-name-' + song.id" [(ngModel)]="playlistName" name="playlistName" maxlength="60" required placeholder="Por ejemplo, Mis favoritas">
+      <button class="small-primary" type="submit" [disabled]="busy || !playlistName.trim()">
+        {{ busy ? 'Guardando…' : 'Crear y agregar canción' }}
+      </button>
+    </form>
+  </section>
+</div>

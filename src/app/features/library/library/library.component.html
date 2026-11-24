@@ -1,1 +1,25 @@
-<p>Library</p>
+<section class="dashboard-content page-content">
+  <div class="page-heading"><div><span class="eyebrow">TU ESPACIO PERSONAL</span><h1>Tu biblioteca</h1><p>Todo lo que guardas y escuchas, en un solo lugar.</p></div><a class="small-primary" routerLink="/dashboard/playlists">Crear playlist <span>＋</span></a></div>
+  <p class="form-message error" *ngIf="error" role="alert">{{ error }}</p>
+  <div class="library-tabs" role="tablist">
+    <button type="button" [class.active]="tab === 'recent'" (click)="tab = 'recent'">Recientes</button>
+    <button type="button" [class.active]="tab === 'favorites'" (click)="tab = 'favorites'">Favoritos</button>
+    <button type="button" [class.active]="tab === 'playlists'" (click)="tab = 'playlists'">Playlists</button>
+    <button type="button" [class.active]="tab === 'albums'" (click)="tab = 'albums'">Álbumes</button>
+  </div>
+  <div class="song-list" *ngIf="tab === 'recent' || tab === 'favorites'">
+    <article class="song-row" *ngFor="let song of songs(); let index = index">
+      <span class="song-index">{{ index + 1 }}</span><button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'">▶</button>
+      <div class="song-details"><strong>{{ song.title }}</strong><span>{{ song.artist }} · {{ song.album }}</span></div><small>{{ song.genre }}</small>
+    </article>
+  </div>
+  <div class="library-card-grid" *ngIf="tab === 'playlists'">
+    <a class="library-card" *ngFor="let playlist of library.playlists()" routerLink="/dashboard/playlists"><span class="library-art">♫</span><strong>{{ playlist.name }}</strong><small>{{ playlist.songIds.length }} canciones</small></a>
+  </div>
+  <div class="library-card-grid" *ngIf="tab === 'albums'">
+    <article class="library-card" *ngFor="let album of library.savedAlbums()"><span class="library-art">◉</span><strong>{{ album.title }}</strong><small>{{ album.artist }}</small></article>
+  </div>
+  <p class="empty-state" *ngIf="(tab === 'recent' || tab === 'favorites') && !songs().length">{{ tab === 'recent' ? 'Tus reproducciones aparecerán aquí.' : 'Guarda canciones en favoritos para encontrarlas aquí.' }}</p>
+  <p class="empty-state" *ngIf="tab === 'playlists' && !library.playlists().length">Aún no tienes playlists. Crea una y compártela con tus amigos.</p>
+  <p class="empty-state" *ngIf="tab === 'albums' && !library.savedAlbums().length">Todavía no tienes álbumes guardados.</p>
+</section>

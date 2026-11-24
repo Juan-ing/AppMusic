@@ -1,0 +1,23 @@
+<section class="dashboard-content page-content">
+  <div class="page-heading"><div><span class="eyebrow">JUNTOS SUENA MEJOR</span><h1>Playlists colaborativas</h1><p>Crea una selección y construye su sonido con tu comunidad.</p></div></div>
+  <p class="form-message error" *ngIf="error" role="alert">{{ error }}</p><p class="form-message success" *ngIf="feedback" role="status">{{ feedback }}</p>
+  <div class="playlist-workspace">
+    <aside class="playlist-browser">
+      <form class="create-playlist-form" (ngSubmit)="create()"><strong>Nueva playlist</strong><input [(ngModel)]="name" name="name" placeholder="Nombre de la playlist" required><input [(ngModel)]="description" name="description" placeholder="Descripción (opcional)"><label class="public-checkbox"><input type="checkbox" [(ngModel)]="isPublic" name="isPublic"> Visible para la comunidad</label><button class="small-primary" type="submit">Crear playlist <span>＋</span></button></form>
+      <strong class="playlist-list-label">TUS PLAYLISTS</strong>
+      <button class="playlist-select" *ngFor="let playlist of playlists()" type="button" [class.active]="selected()?.id === playlist.id" (click)="select(playlist.id)"><span>♫</span><span><strong>{{ playlist.name }}</strong><small>{{ playlist.songIds.length }} canciones</small></span></button>
+      <p class="empty-state" *ngIf="!playlists().length">Crea tu primera playlist.</p>
+    </aside>
+    <div class="playlist-detail" *ngIf="selected() as playlist; else selectPlaylist">
+      <form class="playlist-edit-form" (ngSubmit)="saveDetails()"><label>Nombre<input [(ngModel)]="editName" name="editName" required></label><label>Descripción<input [(ngModel)]="editDescription" name="editDescription"></label><label class="public-checkbox"><input type="checkbox" [(ngModel)]="editIsPublic" name="editIsPublic"> Visible para la comunidad</label><button class="small-primary" type="submit">Guardar cambios</button></form>
+      <div class="playlist-detail-header"><span class="playlist-cover">♫</span><div><span class="eyebrow">PLAYLIST COLABORATIVA</span><h2>{{ playlist.name }}</h2><p>{{ playlist.description || 'Una colección de canciones para compartir.' }}</p><small>{{ playlist.collaboratorIds.length + 1 }} colaboradores</small></div></div>
+      <form class="invite-form" (ngSubmit)="invite()"><input type="email" [(ngModel)]="inviteEmail" name="inviteEmail" placeholder="Correo del colaborador" required><button class="small-primary" type="submit">Invitar</button></form>
+      <div class="playlist-tools"><label>Agregar canción<select #songToAdd><option value="">Selecciona del catálogo</option><option *ngFor="let song of music.songs()" [value]="song.id">{{ song.title }} — {{ song.artist }}</option></select></label><button class="small-primary" type="button" (click)="addSong(songToAdd.value); songToAdd.value = ''" [disabled]="!songToAdd.value">Agregar</button><span class="tool-spacer"></span><button type="button" (click)="undo()">↶ Deshacer</button><button type="button" (click)="redo()">↷ Rehacer</button></div>
+      <div class="song-list">
+        <article class="song-row" *ngFor="let song of playlistSongs; let index = index"><span class="song-index">{{ (index + 1).toString().padStart(2, '0') }}</span><button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'">▶</button><div class="song-details"><strong>{{ song.title }}</strong><span>{{ song.artist }}</span></div><div class="row-actions"><button type="button" (click)="moveSong(index, index - 1)" [disabled]="index === 0" aria-label="Mover arriba">↑</button><button type="button" (click)="moveSong(index, index + 1)" [disabled]="index === playlistSongs.length - 1" aria-label="Mover abajo">↓</button><button type="button" (click)="removeSong(song.id)" aria-label="Quitar canción">×</button></div></article>
+      </div>
+      <p class="empty-state" *ngIf="!playlistSongs.length">Agrega canciones desde el catálogo para empezar.</p>
+    </div>
+    <ng-template #selectPlaylist><div class="playlist-detail empty-state">Selecciona o crea una playlist para comenzar.</div></ng-template>
+  </div>
+</section>

@@ -4,6 +4,14 @@ import { guestGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () =>
+      import('./features/landing/landing.component').then(
+        (component) => component.LandingComponent,
+      ),
+  },
+  {
     path: 'login',
     canActivate: [guestGuard],
     loadComponent: () =>
@@ -56,8 +64,62 @@ export const routes: Routes = [
             (component) => component.FavoritesComponent,
           ),
       },
+      {
+        path: 'playlists',
+        loadComponent: () =>
+          import('./features/playlists/playlists.component').then(
+            (component) => component.PlaylistsComponent,
+          ),
+      },
+      {
+        path: 'chat',
+        loadComponent: () =>
+          import('./features/chat/chat.component').then(
+            (component) => component.ChatComponent,
+          ),
+      },
+      {
+        path: 'store',
+        loadComponent: () =>
+          import('./features/store/store.component').then(
+            (component) => component.StoreComponent,
+          ),
+      },
+      {
+        path: 'cart',
+        loadComponent: () =>
+          import('./features/cart/cart.component').then(
+            (component) => component.CartComponent,
+          ),
+      },
+      {
+        path: 'tours',
+        loadComponent: () =>
+          import('./features/tours/tours.component').then(
+            (component) => component.ToursComponent,
+          ),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/profile/profile.component').then(
+            (component) => component.ProfileComponent,
+          ),
+      },
     ],
   },
-  { path: '', pathMatch: 'full', redirectTo: 'login' },
-  { path: '**', redirectTo: 'login' },
+  {
+    path: 'artist/:id',
+    loadComponent: () =>
+      import('./features/artist/artist.component').then(
+        (component) => component.ArtistComponent,
+      ),
+  },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./features/not-found/not-found.component').then(
+        (component) => component.NotFoundComponent,
+      ),
+  },
 ];

@@ -1,0 +1,149 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ==========================================
+    // Funciones globales de ayuda
+    // ==========================================
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // ==========================================
+    // 1. Colección de usuarios
+    // ==========================================
+    match /users/{uid} {
+      // Lectura permitida para cualquier usuario autenticado (nombres, fotos de perfil, etc.)
+      allow read: if signedIn();
+
+      // Escritura permitida únicamente si el usuario está autenticado y su ID coincide con el documento
+      // Soluciona el problema de inicialización de perfil durante el registro
+      allow create, update: if isOwner(uid);
+      allow delete: if false;
+
+      // ==========================================
+      // 2. Subcolecciones privadas del usuario
+      // ==========================================
+      // Favoritos personales
+      match /favorites/{songId} {
+        allow read, write: if isOwner(uid);
+      }
+
+      // Historial reciente de reproducciones
+      match /history/{entryId} {
+        allow read, write: if isOwner(uid);
+      }
+
+      // Álbumes guardados por el usuario
+      match /savedAlbums/{albumId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // ==========================================
+    // 3. Colección de listas de reproducción
+    // ==========================================
+    match /playlists/{playlistId} {
+      // Función de ayuda para validar si el usuario es dueño o colaborador
+      function ownerOrCollaborator() {
+        return signedIn() && (
+          resource.data.ownerId == request.auth.uid ||
+          request.auth.uid in resource.data.get('collaboratorIds', [])
+        );
+      }
+
+      // Lectura: si la playlist es pública o si el usuario autenticado es dueño/colaborador
+      allow read: if signedIn() && (
+        resource.data.get('isPublic', false) == true ||
+        ownerOrCollaborator()
+      );
+
+      // Creación: debe estar autenticado, ser el propietario y tener arreglos válidos en songIds y collaboratorIds
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.songIds is list
+        && request.resource.data.collaboratorIds is list;
+
+      // Actualización: solo dueño o colaboradores; el ownerId no puede modificarse y solo se permiten campos válidos
+      allow update: if ownerOrCollaborator()
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'name',
+          'description',
+          'isPublic',
+          'songIds',
+          'collaboratorIds',
+          'isCollaborative',
+          'updatedAt'
+        ]);
+
+      // Eliminación: permitida únicamente para el creador / dueño de la playlist
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // ==========================================
+    // 4. Colecciones de catálogo de solo lectura
+    // ==========================================
+    // Canciones del catálogo
+    match /songs/{songId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // Álbumes del catálogo
+    match /albums/{albumId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // Artistas del catálogo
+    match /artists/{artistId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // Eventos y conciertos
+    match /events/{eventId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // Productos de la tienda
+    match /products/{productId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // ==========================================
+    // 5. Colección de chat
+    // ==========================================
+    match /chatRooms/{roomId} {
+      allow read: if signedIn();
+      allow write: if false;
+
+      match /messages/{messageId} {
+        // Lectura para usuarios autenticados (permite listeners en tiempo real con onSnapshot)
+        allow read: if signedIn();
+
+        // Creación: permitida si el autor coincide con el usuario autenticado (soporta userId y authorId)
+        allow create: if signedIn() && (
+          request.resource.data.get('userId', '') == request.auth.uid ||
+          request.resource.data.get('authorId', '') == request.auth.uid
+        );
+
+        // Actualización y eliminación deshabilitadas para clientes
+        allow update, delete: if false;
+      }
+    }
+
+    // Denegación por defecto para cualquier otra ruta no especificada
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

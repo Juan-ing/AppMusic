@@ -1,0 +1,81 @@
+<main class="landing-page">
+  <header class="landing-header">
+    <a class="brand landing-brand" routerLink="/"><span class="brand-mark">A</span><span>AppMusic</span></a>
+    <nav aria-label="Navegación principal">
+      <a href="#discover">Descubrir</a>
+      <a href="#events">Eventos</a>
+      <a href="#benefits">Beneficios</a>
+    </nav>
+    <div class="landing-actions">
+      <a routerLink="/login">Iniciar sesión</a>
+      <a class="landing-cta" routerLink="/register">Únete gratis</a>
+    </div>
+  </header>
+
+  <section class="landing-hero">
+    <div class="landing-hero-copy">
+      <span class="eyebrow">TU MÚSICA. TU UNIVERSO.</span>
+      <h1>Encuentra el ritmo que <em>te conecta.</em></h1>
+      <p>Descubre artistas, crea playlists con tus amigos y vive la música más cerca que nunca.</p>
+      <div class="landing-actions">
+        <a class="landing-cta" routerLink="/register">Empieza a escuchar <span>→</span></a>
+        <a class="landing-secondary" href="#discover">Explora el universo</a>
+      </div>
+      <div class="landing-proof"><span class="proof-orb">♫</span><span>Artistas, música y comunidad<br><strong>en un mismo lugar</strong></span></div>
+    </div>
+    <div class="landing-visual" aria-hidden="true">
+      <div class="visual-glow"></div><div class="visual-record"><div class="record-label">A</div></div>
+      <span class="visual-note note-one">♫</span><span class="visual-note note-two">♪</span>
+      <div class="visual-caption"><span>AHORA SUENA</span><strong>Tu próximo descubrimiento</strong></div>
+    </div>
+  </section>
+
+  <p class="demo-banner landing-demo-banner" *ngIf="music.demoNotice()" role="status">{{ music.demoNotice() }}</p>
+  <p class="catalog-error" *ngIf="error" role="status">{{ error }}</p>
+  <section class="landing-section" id="discover">
+    <div class="landing-section-heading"><div><span class="eyebrow">NUEVOS SONIDOS</span><h2>Artistas que debes conocer</h2></div><a routerLink="/dashboard/search">Explorar música <span>→</span></a></div>
+    <div class="artist-grid" *ngIf="music.artists().length; else emptyArtists">
+      <a class="artist-card" *ngFor="let artist of music.artists().slice(0, 4)" [routerLink]="['/artist', artist.id]">
+        <img *ngIf="artist.photoURL" [src]="artist.photoURL" [alt]="artist.name">
+        <span class="artist-avatar" *ngIf="!artist.photoURL">{{ artist.name.charAt(0) }}</span>
+        <strong>{{ artist.name }}</strong><small>{{ artist.genres.join(' · ') }}</small>
+      </a>
+    </div>
+    <ng-template #emptyArtists><p class="empty-state">Muy pronto encontrarás artistas increíbles por aquí.</p></ng-template>
+  </section>
+
+  <section class="landing-section">
+    <div class="landing-section-heading"><div><span class="eyebrow">SELECCIÓN APPMUSIC</span><h2>Álbumes destacados</h2></div></div>
+    <div class="landing-album-grid" *ngIf="music.albums().length; else emptyAlbums">
+      <a class="landing-album-card" *ngFor="let album of music.albums().slice(0, 4)" [routerLink]="['/artist', album.artistId]">
+        <img *ngIf="album.coverUrl" [src]="album.coverUrl" [alt]="album.title">
+        <span class="album-art-placeholder" *ngIf="!album.coverUrl">♫</span>
+        <strong>{{ album.title }}</strong><small>{{ album.artist }} · {{ album.genre }}</small>
+      </a>
+    </div>
+    <ng-template #emptyAlbums><p class="empty-state">Estamos preparando una selección para ti.</p></ng-template>
+  </section>
+
+  <section class="landing-events" id="events">
+    <div class="landing-section-heading"><div><span class="eyebrow">MÚSICA EN VIVO</span><h2>Próximos eventos</h2></div><a routerLink="/dashboard/tours">Ver mapa de giras <span>→</span></a></div>
+    <div class="event-grid" *ngIf="music.events().length; else emptyEvents">
+      <article class="event-card" *ngFor="let event of music.events().slice(0, 3)">
+        <div class="event-date"><strong>{{ event.startsAt | date:'dd' }}</strong><span>{{ event.startsAt | date:'MMM' }}</span></div>
+        <div><strong>{{ event.title }}</strong><p>{{ event.artist }} · {{ event.venue }}, {{ event.city }}</p></div>
+        <a [routerLink]="['/artist', event.artistId]" [attr.aria-label]="'Ver evento de ' + event.artist">↗</a>
+      </article>
+    </div>
+    <ng-template #emptyEvents><p class="empty-state">Aún no hay eventos publicados.</p></ng-template>
+  </section>
+
+  <section class="benefits-section" id="benefits">
+    <span class="eyebrow">HECHO PARA COMPARTIR</span><h2>La música suena mejor<br>cuando es de todos.</h2>
+    <div class="benefit-grid">
+      <article><span>✦</span><h3>Descubre a tu manera</h3><p>Encuentra artistas, álbumes y canciones que van contigo.</p></article>
+      <article><span>◎</span><h3>Crea juntos</h3><p>Arma playlists colaborativas y comparte cada descubrimiento.</p></article>
+      <article><span>♫</span><h3>Vívela en comunidad</h3><p>Conecta con otros fans y entérate de los próximos shows.</p></article>
+    </div>
+    <a class="landing-cta" routerLink="/register">Tu próxima canción te espera <span>→</span></a>
+  </section>
+  <footer class="landing-footer"><a class="brand" routerLink="/"><span class="brand-mark">A</span><span>AppMusic</span></a><span>La música nos encuentra.</span><small>© {{ year | date:'yyyy' }} AppMusic</small></footer>
+</main>

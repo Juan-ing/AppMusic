@@ -1,0 +1,9 @@
+<section class="dashboard-content page-content">
+  <div class="page-heading"><div><span class="eyebrow">OBJETOS CON BUEN SONIDO</span><h1>Tienda AppMusic</h1><p>Merch, vinilos y piezas para vivir la música.</p></div><a class="small-primary" routerLink="/dashboard/cart">Carrito <span>{{ store.itemCount() }}</span></a></div>
+  <p class="form-message error" *ngIf="error" role="alert">{{ error }}</p>
+  <div class="library-tabs store-filters"><button type="button" [class.active]="!category" (click)="category = ''">Todo</button><button type="button" [class.active]="category === 'merch'" (click)="category = 'merch'">Merch</button><button type="button" [class.active]="category === 'vinyl'" (click)="category = 'vinyl'">Vinilos</button><button type="button" [class.active]="category === 'instrument'" (click)="category = 'instrument'">Instrumentos</button></div>
+  <div class="product-grid" *ngIf="products.length; else emptyStore">
+    <article class="product-card" *ngFor="let product of products"><div class="product-image"><img *ngIf="product.imageURL" [src]="product.imageURL" [alt]="product.name"><span *ngIf="!product.imageURL">♫</span><small>{{ product.category }}</small></div><div class="product-info"><h2>{{ product.name }}</h2><p>{{ product.description }}</p><div><strong>{{ product.price | currency:'COP':'symbol-narrow':'1.0-0' }}</strong><button class="small-primary" type="button" (click)="store.add(product)" [disabled]="product.stock < 1">{{ product.stock ? 'Agregar' : 'Agotado' }}</button></div></div></article>
+  </div>
+  <ng-template #emptyStore><p class="empty-state">No hay productos disponibles en esta categoría.</p></ng-template>
+</section>

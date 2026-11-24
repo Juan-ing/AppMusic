@@ -1,1 +1,31 @@
-<p>Search</p>
+<section class="dashboard-content page-content">
+  <div class="page-heading"><div><span class="eyebrow">DESCUBRE TU PRÓXIMO FAVORITO</span><h1>Explorar música</h1><p>Busca entre canciones, álbumes, artistas y géneros.</p></div></div>
+  <p class="form-message error" *ngIf="error" role="alert">{{ error }}</p>
+  <p class="form-message success" *ngIf="feedback" role="status">{{ feedback }}</p>
+  <div class="explore-search"><span>⌕</span><input type="search" [(ngModel)]="term" placeholder="¿Qué quieres escuchar?" aria-label="Buscar música"></div>
+  <div class="suggestions" *ngIf="suggestions.length">
+    <button type="button" *ngFor="let suggestion of suggestions" (click)="selectSuggestion(suggestion)">{{ suggestion }}</button>
+  </div>
+  <div class="advanced-filters">
+    <label>Género<select [(ngModel)]="genre"><option value="">Todos los géneros</option><option *ngFor="let value of genres" [value]="value">{{ value }}</option></select></label>
+    <label>Artista<select [(ngModel)]="artist"><option value="">Todos los artistas</option><option *ngFor="let value of artists" [value]="value">{{ value }}</option></select></label>
+    <label>Álbum<select [(ngModel)]="album"><option value="">Todos los álbumes</option><option *ngFor="let value of albums" [value]="value">{{ value }}</option></select></label>
+  </div>
+  <div class="section-heading results-heading"><h2>{{ term ? 'Resultados' : 'Canciones del catálogo' }}</h2><span>{{ songs.length }} canciones</span></div>
+  <div class="search-entity-results" *ngIf="term && (music.search(term).artists.length || music.search(term).albums.length)">
+    <a class="search-entity" *ngFor="let artist of music.search(term).artists" [routerLink]="['/artist', artist.id]"><span>ARTISTA</span><strong>{{ artist.name }}</strong><small>{{ artist.genres.join(' · ') }}</small></a>
+    <a class="search-entity" *ngFor="let album of music.search(term).albums" [routerLink]="['/artist', album.artistId]"><span>ÁLBUM</span><strong>{{ album.title }}</strong><small>{{ album.artist }}</small></a>
+  </div>
+  <div class="song-list" *ngIf="songs.length; else noResults">
+    <article class="song-row" *ngFor="let song of songs; let index = index">
+      <span class="song-index">{{ (index + 1).toString().padStart(2, '0') }}</span>
+      <button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'">▶</button>
+      <div class="song-details"><strong>{{ song.title }}</strong><span>{{ song.artist }} · {{ song.album }}</span></div>
+      <small>{{ song.genre }}</small><span class="song-duration">{{ audio.formatTime(song.duration) }}</span>
+      <button class="icon-action" type="button" (click)="enqueue(song)" [attr.aria-label]="'Agregar ' + song.title + ' a la cola'" title="Agregar a la cola">↳</button>
+      <app-playlist-picker [song]="song"></app-playlist-picker>
+      <button class="icon-action" type="button" [class.is-favorite]="isFavorite(song.id)" [attr.aria-pressed]="isFavorite(song.id)" (click)="toggleFavorite(song)" [attr.aria-label]="(isFavorite(song.id) ? 'Quitar ' : 'Agregar ') + song.title + ' ' + (isFavorite(song.id) ? 'de' : 'a') + ' Me gusta'">{{ isFavorite(song.id) ? '♥' : '♡' }}</button>
+    </article>
+  </div>
+  <ng-template #noResults><p class="empty-state">{{ music.loading() ? 'Cargando catálogo…' : 'No encontramos canciones con esos filtros.' }}</p></ng-template>
+</section>

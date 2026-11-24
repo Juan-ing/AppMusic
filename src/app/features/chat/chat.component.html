@@ -1,0 +1,17 @@
+<section class="dashboard-content page-content chat-page">
+  <div class="page-heading"><div><span class="eyebrow">COMUNIDAD APpMUSIC</span><h1>La sala de escucha</h1><p>Comparte lo que estás escuchando con otros fans.</p></div><span class="online-indicator">● EN VIVO</span></div>
+  <p class="form-message error" *ngIf="error" role="alert">{{ error }}</p>
+  <section class="chat-panel">
+    <header class="chat-header"><span class="chat-avatar">♫</span><div><strong>Comunidad AppMusic</strong><small>Conversación pública · mensajes en tiempo real</small></div><span class="chat-live">En directo</span></header>
+    <div class="chat-messages" #messageList aria-live="polite">
+      <p class="chat-welcome">Bienvenido a la conversación. ¡Comparte música con respeto!</p>
+      <article class="chat-message" *ngFor="let message of messages" [class.own-message]="isOwnMessage(message)">
+        <img *ngIf="message.photoURL" [src]="message.photoURL" [alt]="message.username">
+        <span class="chat-avatar" *ngIf="!message.photoURL">{{ message.username.charAt(0) }}</span>
+        <div class="message-bubble"><div class="message-meta"><strong>{{ message.username }}</strong><time>{{ message.createdAt | date:'shortTime' }}</time></div><p>{{ message.text }}</p></div>
+      </article>
+      <p class="empty-state" *ngIf="!messages.length">Sé la primera persona en saludar.</p>
+    </div>
+    <form class="chat-compose" (ngSubmit)="send()"><input [(ngModel)]="text" name="message" maxlength="1000" placeholder="Escribe un mensaje..." autocomplete="off" aria-label="Mensaje"><button class="small-primary" type="submit" [disabled]="!text.trim()">Enviar <span>↑</span></button></form>
+  </section>
+</section>

@@ -5,22 +5,22 @@
       <a routerLink="/dashboard/home" routerLinkActive="active"><span>⌂</span> Inicio</a>
       <a routerLink="/dashboard/search" routerLinkActive="active"><span>⌕</span> Explorar</a>
       <a routerLink="/dashboard/library" routerLinkActive="active"><span>▤</span> Tu biblioteca</a>
-      <a href="#"><span>♫</span> Playlists</a>
-      <a href="#"><span>◆</span> Tienda</a>
-      <a href="#"><span>●</span> Giras</a>
-      <a href="#"><span>◉</span> Comunidad</a>
+      <a routerLink="/dashboard/favorites" routerLinkActive="active"><span>♡</span> Favoritos</a>
+      <a routerLink="/dashboard/playlists" routerLinkActive="active"><span>♫</span> Playlists</a>
+      <a routerLink="/dashboard/store" routerLinkActive="active"><span>◆</span> Tienda</a>
+      <a routerLink="/dashboard/tours" routerLinkActive="active"><span>●</span> Giras</a>
+      <a routerLink="/dashboard/chat" routerLinkActive="active"><span>◉</span> Comunidad</a>
     </nav>
     <div class="playlist-section">
-      <div class="playlist-heading"><span>Tus playlists</span><button type="button" title="Crear playlist">+</button></div>
-      <a href="#">After hours</a>
-      <a href="#">Indie en español</a>
-      <a href="#">Focus mode</a>
+      <div class="playlist-heading"><span>Tus playlists</span><button type="button" title="Crear playlist" routerLink="/dashboard/playlists">+</button></div>
+      <a *ngFor="let playlist of playlists.slice(0, 4)" routerLink="/dashboard/playlists">{{ playlist.name }}</a>
+      <span class="playlist-empty" *ngIf="!playlists.length">Aún no tienes playlists</span>
     </div>
     <div class="premium-card">
       <span class="premium-icon">✦</span>
-      <h3>Tu música, sin límites</h3>
-      <p>Escucha sin anuncios y descarga tus favoritos</p>
-      <button type="button">Descubrir Premium</button>
+      <h3>Un regalo para tus oídos</h3>
+      <p>Descubre productos y detalles para amantes de la música.</p>
+      <button type="button" routerLink="/dashboard/store">Visitar la tienda</button>
     </div>
   </aside>
   <button class="sidebar-backdrop" *ngIf="menuOpen" type="button" aria-label="Cerrar menú" (click)="menuOpen = false"></button>
@@ -28,7 +28,7 @@
   <main class="dashboard-main">
     <header class="dashboard-header">
       <button class="hamburger" type="button" aria-label="Abrir menú" (click)="menuOpen = true">☰</button>
-      <div class="search-box"><span>⌕</span><input type="search" placeholder="Buscar canciones, artistas o podcasts"></div>
+      <label class="search-box"><span>⌕</span><input type="search" [(ngModel)]="searchTerm" (keydown.enter)="openSearch()" placeholder="Buscar canciones, artistas o podcasts" aria-label="Buscar música"></label>
       <div class="profile-wrap">
         <button class="profile-button" type="button" (click)="userMenuOpen = !userMenuOpen" [attr.aria-expanded]="userMenuOpen">
           <img *ngIf="authService.profile()?.photoURL" [src]="authService.profile()?.photoURL" alt="">
@@ -36,11 +36,15 @@
         </button>
         <div class="user-menu" *ngIf="userMenuOpen">
           <strong>{{ authService.profile()?.name || 'Usuario' }}</strong>
+          <button type="button" routerLink="/dashboard/profile" (click)="userMenuOpen = false">Mi perfil</button>
           <button type="button" (click)="logout()">Cerrar sesión</button>
         </div>
       </div>
     </header>
+    <p class="demo-banner" *ngIf="music.demoNotice()" role="status">{{ music.demoNotice() }}</p>
+    <p class="layout-error" *ngIf="layoutError" role="status">{{ layoutError }}</p>
     <router-outlet></router-outlet>
+    <app-mini-player></app-mini-player>
   </main>
   <app-bottom-nav></app-bottom-nav>
 </div>

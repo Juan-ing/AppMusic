@@ -1,0 +1,26 @@
+<main class="artist-page">
+  <header class="artist-header"><a class="brand" routerLink="/"><span class="brand-mark">A</span><span>AppMusic</span></a><a class="landing-cta" routerLink="/register">Únete a AppMusic</a></header>
+  <p class="demo-banner" *ngIf="music.demoNotice()" role="status">{{ music.demoNotice() }}</p>
+  <p class="form-message error" *ngIf="error" role="alert">{{ error }}</p>
+  <section class="artist-hero" *ngIf="artist as profile; else missingArtist" [style.backgroundImage]="profile.photoURL ? 'linear-gradient(90deg,rgba(13,13,13,.95),rgba(13,13,13,.35)),url(' + profile.photoURL + ')' : ''">
+    <div><span class="eyebrow">ARTISTA DESTACADO</span><h1>{{ profile.name }}</h1><p>{{ profile.genres.join(' · ') }}</p><p class="artist-bio">{{ profile.bio }}</p><a class="landing-cta" routerLink="/login">Iniciar sesión para escuchar</a></div>
+  </section>
+  <ng-template #missingArtist><section class="artist-hero"><div><span class="eyebrow">APPMUSIC</span><h1>Artista no encontrado</h1><p>Este perfil no está disponible en nuestro catálogo.</p><a class="landing-cta" routerLink="/">Volver al inicio</a></div></section></ng-template>
+  <section class="landing-section" *ngIf="artist"><div class="landing-section-heading"><div><span class="eyebrow">DISCOGRAFÍA</span><h2>Álbumes</h2></div></div><div class="landing-album-grid" *ngIf="albums.length; else noAlbums"><a class="landing-album-card" *ngFor="let album of albums" routerLink="/login"><img *ngIf="album.coverUrl" [src]="album.coverUrl" [alt]="album.title"><span class="album-art-placeholder" *ngIf="!album.coverUrl">♫</span><strong>{{ album.title }}</strong><small>{{ album.genre }}</small></a></div><ng-template #noAlbums><p class="empty-state">No hay álbumes publicados.</p></ng-template></section>
+  <section class="landing-section" *ngIf="artist">
+    <div class="landing-section-heading"><div><span class="eyebrow">ESCUCHA SU MÚSICA</span><h2>Canciones</h2></div></div>
+    <div class="song-list" *ngIf="songs.length; else noSongs">
+      <article class="song-row" *ngFor="let song of songs; let index = index">
+        <span class="song-index">{{ (index + 1).toString().padStart(2, '0') }}</span>
+        <button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'" [attr.aria-label]="'Reproducir ' + song.title">▶</button>
+        <div class="song-details"><strong>{{ song.title }}</strong><span>{{ song.album }}</span></div>
+        <small>{{ song.genre }}</small><span class="song-duration">{{ audio.formatTime(song.duration) }}</span>
+        <app-playlist-picker [song]="song"></app-playlist-picker>
+        <button class="icon-action" type="button" [class.is-favorite]="isFavorite(song.id)" [attr.aria-pressed]="isFavorite(song.id)" (click)="toggleFavorite(song)" [attr.aria-label]="(isFavorite(song.id) ? 'Quitar ' : 'Agregar ') + song.title + ' ' + (isFavorite(song.id) ? 'de' : 'a') + ' Me gusta'">{{ isFavorite(song.id) ? '♥' : '♡' }}</button>
+      </article>
+    </div>
+    <ng-template #noSongs><p class="empty-state">No hay canciones publicadas para este artista.</p></ng-template>
+  </section>
+  <section class="landing-section" *ngIf="artist"><div class="landing-section-heading"><div><span class="eyebrow">EN VIVO</span><h2>Próximos eventos</h2></div></div><div class="event-grid" *ngIf="events.length; else noEvents"><article class="event-card" *ngFor="let event of events"><div class="event-date"><strong>{{ event.startsAt | date:'dd' }}</strong><span>{{ event.startsAt | date:'MMM' }}</span></div><div><strong>{{ event.title }}</strong><p>{{ event.venue }} · {{ event.city }}</p></div></article></div><ng-template #noEvents><p class="empty-state">Aún no hay eventos publicados.</p></ng-template></section>
+  <section class="landing-section" *ngIf="artist && similar.length"><div class="landing-section-heading"><div><span class="eyebrow">TAMBIÉN TE PUEDE GUSTAR</span><h2>Artistas similares</h2></div></div><div class="artist-grid"><a class="artist-card" *ngFor="let related of similar" [routerLink]="['/artist', related.id]"><img *ngIf="related.photoURL" [src]="related.photoURL" [alt]="related.name"><span class="artist-avatar" *ngIf="!related.photoURL">{{ related.name.charAt(0) }}</span><strong>{{ related.name }}</strong><small>{{ related.genres.join(' · ') }}</small></a></div></section>
+</main>

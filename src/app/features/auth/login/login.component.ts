@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -20,8 +20,9 @@ export class LoginComponent {
   success = '';
 
   constructor(
-    private authService: AuthService,
+    readonly authService: AuthService,
     private router: Router,
+    private readonly route: ActivatedRoute,
   ) {}
 
   async login() {
@@ -37,10 +38,10 @@ export class LoginComponent {
     }
     this.busy = true;
     try {
-      await this.authService.login(this.email.trim(), this.password);
-      await this.router.navigate(['/dashboard']);
+      await this.authService.login(this.email.trim(), this.password, this.remember);
+      await this.navigateAfterLogin();
     } catch (error) {
-      this.error = this.authService.getErrorMessage(error);
+      this.error = this.authService.profileError() ? '' : this.authService.getErrorMessage(error);
     } finally {
       this.busy = false;
     }
@@ -51,9 +52,9 @@ export class LoginComponent {
     this.busy = true;
     try {
       await this.authService.loginWithGoogle();
-      await this.router.navigate(['/dashboard']);
+      await this.navigateAfterLogin();
     } catch (error) {
-      this.error = this.authService.getErrorMessage(error);
+      this.error = this.authService.profileError() ? '' : this.authService.getErrorMessage(error);
     } finally {
       this.busy = false;
     }
@@ -72,5 +73,13 @@ export class LoginComponent {
     } catch (error) {
       this.error = this.authService.getErrorMessage(error);
     }
+  }
+
+  private navigateAfterLogin(): Promise<boolean> {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    const destination = returnUrl?.startsWith('/') && !returnUrl.startsWith('//')
+      ? returnUrl
+      : '/dashboard';
+    return this.router.navigateByUrl(destination);
   }
 }

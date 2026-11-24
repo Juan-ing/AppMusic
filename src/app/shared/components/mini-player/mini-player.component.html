@@ -1,1 +1,10 @@
-<p>Mini player</p>
+<section class="mini-player" *ngIf="audio.currentSong() as song" aria-label="Reproductor">
+  <div class="player-track"><span class="player-cover" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'">♫</span><div><strong>{{ song.title }}</strong><small>{{ song.artist }}</small></div></div>
+  <div class="player-controls"><div class="player-buttons"><button type="button" class="player-option" [class.enabled]="audio.shuffle()" (click)="audio.toggleShuffle()" aria-label="Aleatorio">⤨</button><button type="button" (click)="audio.playPrevious()" aria-label="Anterior">|◀</button><button type="button" class="player-play" (click)="audio.togglePlayback()" [attr.aria-label]="audio.isPlaying() ? 'Pausar' : 'Reproducir'">{{ audio.isPlaying() ? 'Ⅱ' : '▶' }}</button><button type="button" (click)="audio.playNext()" aria-label="Siguiente">▶|</button><button type="button" class="player-option" [class.enabled]="audio.repeat() !== 'off'" (click)="audio.cycleRepeat()" aria-label="Repetir">{{ audio.repeat() === 'one' ? '↻¹' : '↻' }}</button></div>
+    <div class="player-progress"><span>{{ audio.formatTime(audio.currentTime()) }}</span><input type="range" min="0" [max]="audio.duration() || 1" [value]="audio.currentTime()" [style.--progress]="progress + '%'" (input)="seek($event)" aria-label="Progreso de reproducción"><span>{{ audio.formatTime(audio.duration()) }}</span></div>
+  </div>
+  <div class="player-volume"><button type="button" (click)="queueOpen = !queueOpen" aria-label="Mostrar cola">☷ <span>Cola</span></button><span>◖</span><input type="range" min="0" max="1" step="0.01" [value]="audio.volume()" (input)="setVolume($event)" aria-label="Volumen"></div>
+  <p class="player-error" *ngIf="audio.error()">{{ audio.error() }}</p>
+  <p class="player-error" *ngIf="audio.historyError()">{{ audio.historyError() }}</p>
+  <div class="queue-popover" *ngIf="queueOpen"><strong>Próximas canciones <span>{{ audio.size() }}</span></strong><p *ngFor="let next of audio.queue()">{{ next.title }} <small>{{ next.artist }}</small></p><p class="queue-empty" *ngIf="!audio.queue().length">No hay canciones en cola.</p></div>
+</section>

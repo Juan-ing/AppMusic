@@ -7,6 +7,7 @@ const values = {
   firebaseStorageBucket: '',
   firebaseMessagingSenderId: '',
   firebaseAppId: '',
+  firebaseMeasurementId: '',
 };
 
 if (existsSync('.env')) {
@@ -17,6 +18,7 @@ if (existsSync('.env')) {
     NG_APP_FIREBASE_STORAGE_BUCKET: 'firebaseStorageBucket',
     NG_APP_FIREBASE_MESSAGING_SENDER_ID: 'firebaseMessagingSenderId',
     NG_APP_FIREBASE_APP_ID: 'firebaseAppId',
+    NG_APP_FIREBASE_MEASUREMENT_ID: 'firebaseMeasurementId',
   };
   for (const line of readFileSync('.env', 'utf8').split(/\r?\n/)) {
     const match = line.match(/^([^#=]+)=(.*)$/);
