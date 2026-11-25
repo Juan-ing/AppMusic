@@ -9,6 +9,7 @@ export interface Song {
   duration: number;
   audioUrl: string;
   coverUrl: string;
+  coverStyle?: string;
   releaseDate?: string;
 }
 
@@ -19,6 +20,7 @@ export interface Album {
   artist: string;
   genre: string;
   coverUrl: string;
+  coverStyle?: string;
   releaseDate?: string;
   songIds: string[];
 }

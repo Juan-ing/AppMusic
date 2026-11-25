@@ -49,7 +49,7 @@
     <div class="landing-album-grid" *ngIf="music.albums().length; else emptyAlbums">
       <a class="landing-album-card" *ngFor="let album of music.albums().slice(0, 4)" [routerLink]="['/artist', album.artistId]">
         <img *ngIf="album.coverUrl" [src]="album.coverUrl" [alt]="album.title">
-        <span class="album-art-placeholder" *ngIf="!album.coverUrl">♫</span>
+        <span class="album-art-placeholder" *ngIf="!album.coverUrl" [style.backgroundImage]="album.coverStyle || 'linear-gradient(135deg,#32204c,#161616)'">♫</span>
         <strong>{{ album.title }}</strong><small>{{ album.artist }} · {{ album.genre }}</small>
       </a>
     </div>

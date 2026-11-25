@@ -24,6 +24,11 @@ export class AudioService {
   private readonly libraryService = inject(LibraryService);
   private trackList: Song[] = [];
   private audio?: HTMLAudioElement;
+  private simulationContext?: AudioContext;
+  private simulationMaster?: GainNode;
+  private simulationOscillators: OscillatorNode[] = [];
+  private simulationTimer?: number;
+  private simulationStartedAt = 0;
   private lastRecordedSongId = '';
   private recordingSongId = '';
   private playRequestId = 0;
@@ -75,10 +80,11 @@ export class AudioService {
   private startAudio(song: Song): void {
     const requestId = ++this.playRequestId;
     this.error.set('');
+    this.stopSimulation();
     this.audio?.pause();
     this.isPlaying.set(false);
     if (!song.audioUrl) {
-      this.error.set('Esta canción todavía no tiene una fuente de audio disponible.');
+      this.startSimulation(song, requestId);
       return;
     }
     const audio = this.getAudio();
@@ -104,6 +110,7 @@ export class AudioService {
   togglePlayback(): void {
     if (this.isPlaying()) {
       this.audio?.pause();
+      this.stopSimulation();
       this.isPlaying.set(false);
       return;
     }
@@ -115,6 +122,7 @@ export class AudioService {
   playNext(): void {
     const current = this.currentSong();
     if (current && this.repeat() === 'one') {
+      this.currentTime.set(0);
       this.startAudio(current);
       return;
     }
@@ -132,6 +140,7 @@ export class AudioService {
     else {
       this.currentSong.set(null);
       this.isPlaying.set(false);
+      this.duration.set(0);
     }
   }
 
@@ -160,10 +169,22 @@ export class AudioService {
     const value = Math.max(0, Math.min(1, volume));
     this.volume.set(value);
     if (this.audio) this.audio.volume = value;
+    if (this.simulationContext && this.simulationMaster) {
+      this.simulationMaster.gain.setTargetAtTime(value * 0.25, this.simulationContext.currentTime, 0.02);
+    }
   }
 
   seek(time: number): void {
-    if (this.audio && Number.isFinite(time)) this.audio.currentTime = time;
+    if (!Number.isFinite(time)) return;
+    const position = Math.max(0, Math.min(this.duration(), time));
+    if (this.currentSong()?.audioUrl && this.audio) {
+      this.audio.currentTime = position;
+      return;
+    }
+    this.currentTime.set(position);
+    if (this.simulationContext && this.isPlaying()) {
+      this.simulationStartedAt = this.simulationContext.currentTime - position;
+    }
   }
 
   formatTime(seconds: number): string {
@@ -185,7 +206,94 @@ export class AudioService {
   }
 
   private setCurrentSong(song: Song): void {
+    if (this.currentSong()?.id !== song.id) {
+      this.currentTime.set(0);
+      this.duration.set(song.duration);
+    }
     this.currentSong.set(song);
+  }
+
+  private startSimulation(song: Song, requestId: number): void {
+    if (typeof window === 'undefined' || typeof window.AudioContext === 'undefined') {
+      this.error.set('La reproducción de demostración no está disponible en este navegador.');
+      return;
+    }
+
+    const context = this.simulationContext ?? new AudioContext();
+    this.simulationContext = context;
+    void context.resume().then(
+      () => {
+        if (requestId !== this.playRequestId) return;
+
+        const master = context.createGain();
+        master.gain.value = this.volume() * 0.25;
+        master.connect(context.destination);
+        this.simulationMaster = master;
+
+        const voices = [
+          { type: 'triangle' as const, gain: 0.18 },
+          { type: 'sine' as const, gain: 0.1 },
+          { type: 'sine' as const, gain: 0.2 },
+        ];
+        this.simulationOscillators = voices.map(({ type, gain }) => {
+          const oscillator = context.createOscillator();
+          const voiceGain = context.createGain();
+          oscillator.type = type;
+          voiceGain.gain.value = gain;
+          oscillator.connect(voiceGain);
+          voiceGain.connect(master);
+          oscillator.start();
+          return oscillator;
+        });
+
+        this.duration.set(song.duration);
+        this.simulationStartedAt = context.currentTime - this.currentTime();
+        this.isPlaying.set(true);
+        this.recordPlayback(song);
+
+        const notes = [261.63, 293.66, 349.23, 392, 440, 392, 349.23, 293.66];
+        const offset = Array.from(song.id).reduce((total, character) => total + character.charCodeAt(0), 0);
+        let lastBeat = -1;
+        this.simulationTimer = window.setInterval(() => {
+          if (requestId !== this.playRequestId) return;
+          const elapsed = Math.max(0, context.currentTime - this.simulationStartedAt);
+          this.currentTime.set(Math.min(elapsed, song.duration));
+          if (elapsed >= song.duration) {
+            this.playNext();
+            return;
+          }
+
+          const beat = Math.floor(elapsed / 0.42);
+          if (beat !== lastBeat) {
+            lastBeat = beat;
+            const note = notes[(beat + offset) % notes.length];
+            const now = context.currentTime;
+            this.simulationOscillators[0].frequency.setTargetAtTime(note, now, 0.04);
+            this.simulationOscillators[1].frequency.setTargetAtTime(note * 1.25, now, 0.05);
+            this.simulationOscillators[2].frequency.setTargetAtTime(note / 2, now, 0.06);
+          }
+        }, 100);
+      },
+      () => {
+        if (requestId !== this.playRequestId) return;
+        this.error.set('No se pudo iniciar la reproducción de demostración.');
+        this.isPlaying.set(false);
+      },
+    );
+  }
+
+  private stopSimulation(): void {
+    if (this.simulationTimer !== undefined) {
+      window.clearInterval(this.simulationTimer);
+      this.simulationTimer = undefined;
+    }
+    for (const oscillator of this.simulationOscillators) {
+      oscillator.stop();
+      oscillator.disconnect();
+    }
+    this.simulationOscillators = [];
+    this.simulationMaster?.disconnect();
+    this.simulationMaster = undefined;
   }
 
   private recordPlayback(song: Song): void {

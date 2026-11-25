@@ -21,7 +21,7 @@
     <div class="section-heading"><h2>Hecho para tus oídos</h2><button type="button">Ver todo</button></div>
     <div class="music-grid" *ngIf="albums().length; else noAlbums">
       <article class="music-card" *ngFor="let album of albums()">
-        <button class="album-cover" type="button" [style.backgroundImage]="album.coverUrl ? 'url(' + album.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'" (click)="playAlbum(album)" [attr.aria-label]="'Reproducir ' + album.title"><span>▶</span></button>
+        <button class="album-cover" type="button" [style.backgroundImage]="album.coverUrl ? 'url(' + album.coverUrl + ')' : (album.coverStyle || 'linear-gradient(135deg,#7c3aed,#1e1b4b)')" (click)="playAlbum(album)" [attr.aria-label]="'Reproducir ' + album.title"><span>▶</span></button>
         <h3>{{ album.title }}</h3>
         <p>{{ album.artist }}</p>
         <small>{{ album.genre }}</small>
@@ -35,7 +35,7 @@
     <div class="section-heading"><h2>Recomendado por tus Me gusta</h2></div>
     <div class="song-list" *ngIf="library.favorites().length && recommendations().length; else noLikeRecommendations">
       <article class="song-row" *ngFor="let song of recommendations()">
-        <button class="song-art" type="button" (click)="playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'" [attr.aria-label]="'Reproducir ' + song.title">▶</button>
+        <button class="song-art" type="button" (click)="playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : (song.coverStyle || 'linear-gradient(135deg,#7c3aed,#1e1b4b)')" [attr.aria-label]="'Reproducir ' + song.title">▶</button>
         <div class="song-details"><strong>{{ song.title }}</strong><span>{{ song.artist }} · {{ song.album }}</span></div>
         <small>{{ song.genre }}</small>
         <app-playlist-picker [song]="song"></app-playlist-picker>
@@ -63,7 +63,7 @@
     <div class="section-heading"><h2>Escuchados recientemente</h2></div>
     <div class="music-grid" *ngIf="library.recentSongs().length; else noRecent">
       <article class="music-card" *ngFor="let song of library.recentSongs().slice(0, 4)">
-        <button class="album-cover" type="button" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#312e81,#06b6d4)'" (click)="playSong(song)" [attr.aria-label]="'Reproducir ' + song.title"><span>▶</span></button>
+        <button class="album-cover" type="button" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : (song.coverStyle || 'linear-gradient(135deg,#312e81,#06b6d4)')" (click)="playSong(song)" [attr.aria-label]="'Reproducir ' + song.title"><span>▶</span></button>
         <h3>{{ song.title }}</h3><p>{{ song.artist }}</p>
       </article>
     </div>

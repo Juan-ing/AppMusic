@@ -9,7 +9,7 @@
   </div>
   <div class="song-list" *ngIf="tab === 'recent' || tab === 'favorites'">
     <article class="song-row" *ngFor="let song of songs(); let index = index">
-      <span class="song-index">{{ index + 1 }}</span><button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'">▶</button>
+      <span class="song-index">{{ index + 1 }}</span><button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : (song.coverStyle || 'linear-gradient(135deg,#7c3aed,#1e1b4b)')">▶</button>
       <div class="song-details"><strong>{{ song.title }}</strong><span>{{ song.artist }} · {{ song.album }}</span></div><small>{{ song.genre }}</small>
     </article>
   </div>

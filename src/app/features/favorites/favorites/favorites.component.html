@@ -3,7 +3,7 @@
   <p class="form-message error" *ngIf="error" role="alert">{{ error }}</p>
   <div class="song-list" *ngIf="library.favorites().length; else noFavorites">
     <article class="song-row" *ngFor="let song of library.favorites(); let index = index">
-      <span class="song-index">{{ index + 1 }}</span><button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'">▶</button>
+      <span class="song-index">{{ index + 1 }}</span><button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : (song.coverStyle || 'linear-gradient(135deg,#7c3aed,#1e1b4b)')">▶</button>
       <div class="song-details"><strong>{{ song.title }}</strong><span>{{ song.artist }} · {{ song.album }}</span></div><small>{{ song.genre }}</small>
       <button class="icon-action is-favorite" type="button" (click)="remove(song.id)" [attr.aria-label]="'Quitar ' + song.title + ' de favoritos'">♥</button>
     </article>

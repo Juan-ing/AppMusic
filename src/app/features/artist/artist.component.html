@@ -6,13 +6,13 @@
     <div><span class="eyebrow">ARTISTA DESTACADO</span><h1>{{ profile.name }}</h1><p>{{ profile.genres.join(' · ') }}</p><p class="artist-bio">{{ profile.bio }}</p><a class="landing-cta" routerLink="/login">Iniciar sesión para escuchar</a></div>
   </section>
   <ng-template #missingArtist><section class="artist-hero"><div><span class="eyebrow">APPMUSIC</span><h1>Artista no encontrado</h1><p>Este perfil no está disponible en nuestro catálogo.</p><a class="landing-cta" routerLink="/">Volver al inicio</a></div></section></ng-template>
-  <section class="landing-section" *ngIf="artist"><div class="landing-section-heading"><div><span class="eyebrow">DISCOGRAFÍA</span><h2>Álbumes</h2></div></div><div class="landing-album-grid" *ngIf="albums.length; else noAlbums"><a class="landing-album-card" *ngFor="let album of albums" routerLink="/login"><img *ngIf="album.coverUrl" [src]="album.coverUrl" [alt]="album.title"><span class="album-art-placeholder" *ngIf="!album.coverUrl">♫</span><strong>{{ album.title }}</strong><small>{{ album.genre }}</small></a></div><ng-template #noAlbums><p class="empty-state">No hay álbumes publicados.</p></ng-template></section>
+  <section class="landing-section" *ngIf="artist"><div class="landing-section-heading"><div><span class="eyebrow">DISCOGRAFÍA</span><h2>Álbumes</h2></div></div><div class="landing-album-grid" *ngIf="albums.length; else noAlbums"><a class="landing-album-card" *ngFor="let album of albums" routerLink="/login"><img *ngIf="album.coverUrl" [src]="album.coverUrl" [alt]="album.title"><span class="album-art-placeholder" *ngIf="!album.coverUrl" [style.backgroundImage]="album.coverStyle || 'linear-gradient(135deg,#32204c,#161616)'">♫</span><strong>{{ album.title }}</strong><small>{{ album.genre }}</small></a></div><ng-template #noAlbums><p class="empty-state">No hay álbumes publicados.</p></ng-template></section>
   <section class="landing-section" *ngIf="artist">
     <div class="landing-section-heading"><div><span class="eyebrow">ESCUCHA SU MÚSICA</span><h2>Canciones</h2></div></div>
     <div class="song-list" *ngIf="songs.length; else noSongs">
       <article class="song-row" *ngFor="let song of songs; let index = index">
         <span class="song-index">{{ (index + 1).toString().padStart(2, '0') }}</span>
-        <button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'" [attr.aria-label]="'Reproducir ' + song.title">▶</button>
+        <button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : (song.coverStyle || 'linear-gradient(135deg,#7c3aed,#1e1b4b)')" [attr.aria-label]="'Reproducir ' + song.title">▶</button>
         <div class="song-details"><strong>{{ song.title }}</strong><span>{{ song.album }}</span></div>
         <small>{{ song.genre }}</small><span class="song-duration">{{ audio.formatTime(song.duration) }}</span>
         <app-playlist-picker [song]="song"></app-playlist-picker>

@@ -19,7 +19,7 @@
   <div class="song-list" *ngIf="songs.length; else noResults">
     <article class="song-row" *ngFor="let song of songs; let index = index">
       <span class="song-index">{{ (index + 1).toString().padStart(2, '0') }}</span>
-      <button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : 'linear-gradient(135deg,#7c3aed,#1e1b4b)'">▶</button>
+      <button class="song-art" type="button" (click)="audio.playSong(song)" [style.backgroundImage]="song.coverUrl ? 'url(' + song.coverUrl + ')' : (song.coverStyle || 'linear-gradient(135deg,#7c3aed,#1e1b4b)')">▶</button>
       <div class="song-details"><strong>{{ song.title }}</strong><span>{{ song.artist }} · {{ song.album }}</span></div>
       <small>{{ song.genre }}</small><span class="song-duration">{{ audio.formatTime(song.duration) }}</span>
       <button class="icon-action" type="button" (click)="enqueue(song)" [attr.aria-label]="'Agregar ' + song.title + ' a la cola'" title="Agregar a la cola">↳</button>

@@ -11,6 +11,7 @@ import {
   DEMO_EVENTS,
   DEMO_PRODUCTS,
   DEMO_SONGS,
+  createCoverArtStyle,
   deriveAlbums,
   deriveArtists,
 } from '../data/demo-catalog';
@@ -48,9 +49,31 @@ export class MusicDataService {
         this.readCollection<MusicEvent>('events'),
         this.readCollection<Product>('products'),
       ]);
-      const songs = remoteSongs.length ? remoteSongs : DEMO_SONGS;
+      const songs = (remoteSongs.length ? remoteSongs : DEMO_SONGS).map((song) => ({
+        ...song,
+        audioUrl: song.audioUrl ?? '',
+        coverUrl: song.coverUrl || '',
+        coverStyle: song.coverStyle || (song.coverUrl ? '' : createCoverArtStyle(
+          song.album || song.title || 'AppMusic',
+          song.artist || 'Artista',
+          song.genre || 'Demo',
+        )),
+      }));
       const albumsById = new Map(
-        [...deriveAlbums(songs), ...remoteAlbums].map((album) => [album.id, album]),
+        [
+          ...deriveAlbums(songs),
+          ...remoteAlbums.map((album) => ({
+            ...album,
+            coverUrl: album.coverUrl || '',
+            coverStyle: album.coverStyle
+              || songs.find((song) => song.albumId === album.id)?.coverStyle
+              || (album.coverUrl ? '' : createCoverArtStyle(
+                album.title || 'AppMusic',
+                album.artist || 'Artista',
+                album.genre || 'Demo',
+              )),
+          })),
+        ].map((album) => [album.id, album]),
       );
       const artistsById = new Map(
         [...deriveArtists(songs), ...remoteArtists].map((artist) => [artist.id, artist]),

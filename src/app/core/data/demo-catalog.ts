@@ -8,6 +8,21 @@ interface DemoSongSeed {
   duration: number;
 }
 
+const coverPalettes: Record<string, Array<[string, string]>> = {
+  Reguetón: [['#f97316', '#be185d'], ['#fb7185', '#7e22ce'], ['#f59e0b', '#9d174d']],
+  Pop: [['#ec4899', '#7c3aed'], ['#f472b6', '#4338ca'], ['#c084fc', '#be123c']],
+  Rock: [['#ef4444', '#292524'], ['#f97316', '#450a0a'], ['#a1a1aa', '#3f1d2e']],
+  Electrónica: [['#06b6d4', '#4f46e5'], ['#22d3ee', '#6d28d9'], ['#2dd4bf', '#1e3a8a']],
+  Jazz: [['#f59e0b', '#713f12'], ['#fbbf24', '#7f1d1d'], ['#d97706', '#164e63']],
+};
+
+export function createCoverArtStyle(title: string, artist: string, genre: string): string {
+  const palettes = coverPalettes[genre] ?? [['#7c3aed', '#1e1b4b']];
+  const seed = Array.from(`${artist}:${title}`).reduce((total, character) => total + character.charCodeAt(0), 0);
+  const [startColor, endColor] = palettes[seed % palettes.length];
+  return `radial-gradient(circle at 72% 27%, rgba(255,255,255,.28) 0 3%, transparent 3.5% 11%, rgba(255,255,255,.18) 11.5% 12%, transparent 12.5% 21%, rgba(0,0,0,.18) 21.5% 22%, transparent 22.5%), radial-gradient(circle at 28% 100%, rgba(255,255,255,.18), transparent 58%), linear-gradient(145deg, ${startColor}, ${endColor})`;
+}
+
 function slug(value: string): string {
   return value
     .normalize('NFD')
@@ -56,6 +71,7 @@ export const DEMO_SONGS: Song[] = songSeeds.map((seed) => ({
   duration: seed.duration,
   audioUrl: '',
   coverUrl: '',
+  coverStyle: createCoverArtStyle(seed.album, seed.artist, seed.genre),
 }));
 
 export function deriveAlbums(songs: Song[]): Album[] {
@@ -67,7 +83,8 @@ export function deriveAlbums(songs: Song[]): Album[] {
         artistId: song.artistId,
         artist: song.artist,
         genre: song.genre,
-        coverUrl: '',
+        coverUrl: song.coverUrl,
+        coverStyle: song.coverStyle,
         songIds: [],
       };
       album.songIds.push(song.id);
